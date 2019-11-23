@@ -1,0 +1,37 @@
+Modular VFD Theory of Operation:
+
+The concept behind the modular VFD boards it to hook up one PSU board and use it
+to drive up to 10 IV-11 VFD digits. The boards use standard right angle 2.54mm (0.1")
+headers and can be daisy-chained to meet the number of digits required.
+
+PSU:
+
+The PSU's main purpose is to generate all of the required voltage levels from a 12V input.
+The rails generated are 28v for driving the grid and anodes (segments), a general purpose
+5v rail (not used internally), a 3.3v rail for the microcontroller and I/O and the 1.5v rail
+used by the heaters in the VFD digits.
+
+The input is a 2.1x5.5(mm) center positive barell connector. The supply needs a 12v, 
+2A input supply to run the all 10 digits and their 8 anodes (segments). It is connected
+through a SMB reverse protection Schottky diode, and features 2 LEDs to indicate the
+polarity of the input connection.
+
+The microcontroller is a Microchip PIC16F15323 and is programmed via the pickit (3) ICSP
+interface. It is a 3.3v microcontroller, and the GPIO is not 5v tolerant. If using an arduino
+to interface with it, consider using a level shifter, a 3.3v zener clamp, or NPN or NMOS
+transistors to pull the pins low. The ISCP header is the first 5 pins of the breakout header
+which contains access to the IO pins and power rails. The breakout header also has 2.54mm
+(0.1") spacing. The microcontroller is connected to 4 surface mount 6x6mm tactile buttons
+labled on the board as T, A, +, -. It is intented to function as clock buttons but their
+function may be changed in code. They utilize the pullups found in the PIC16F15323 and
+thus are active low.
+
+Digit Board:
+
+Each board contains 2 2.54mm (0.1") headers for daisy chaining multiple segments, 
+a 74HC595PW latched shift register (serial in, parallel out) and a TBD62783AFG high
+side driver chip (8 channel). The shift register takes serial data from the mcu and drives
+the inputs of the high side driver. The data stored in the shift register is latched to the
+output on the rising edge of the latch signal so that the display data can be updated 
+without seeing the data shift through the display. The serial output is connected to 
+the SDO pin on the header, which mates with the SDI pin on the next digit.
